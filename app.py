@@ -66,18 +66,18 @@ col_makro, col_sosial = st.columns(2)
 with col_makro:
     with st.container(border=True):
         st.markdown("#### 💰 Dampak Makroekonomi")
-        m1, m2, m3 = st.columns(3)
-        m1.metric(label="Tambahan PDB", value=f"+ Rp {pdb_t:,.1f} T")
-        m2.metric(label="Ke PDB 2025", value=f"+ {persen_pdb:.2f}%")
-        m3.metric(label="Daya Beli Baru", value=f"Rp {db_t:,.1f} T")
+        # Angka dijejer ke bawah agar tidak terpotong
+        st.metric(label="Tambahan PDB", value=f"+ Rp {pdb_t:,.1f} T")
+        st.metric(label="Ke PDB 2025", value=f"+ {persen_pdb:.2f}%")
+        st.metric(label="Daya Beli Baru", value=f"Rp {db_t:,.1f} T")
 
 with col_sosial:
     with st.container(border=True):
         st.markdown("#### 🤝 Dampak Sosial")
-        s1, s2, s3 = st.columns(3)
-        s1.metric(label="Poverty Gap Tutup", value=f"{persen_miskin:.1f}%")
-        s2.metric(label="Gini Baru", value=f"{new_gini:.3f}", delta=f"-{gini_drop:.3f}", delta_color="inverse")
-        s3.metric(label="Gini Awal", value=f"{AWAL_GINI}")
+        # Angka dijejer ke bawah agar tidak terpotong
+        st.metric(label="Poverty Gap Tutup", value=f"{persen_miskin:.1f}%")
+        st.metric(label="Gini Baru", value=f"{new_gini:.3f}", delta=f"-{gini_drop:.3f}", delta_color="inverse")
+        st.metric(label="Gini Awal", value=f"{AWAL_GINI}")
 
 
 # --- BARIS 2: 1 KOTAK & 1 GRAFIK SEJAJAR ---
@@ -93,7 +93,8 @@ with col_ops:
 with col_grafik:
     with st.container(border=True):
         st.markdown("#### 📈 Distribusi Nilai (Triliun Rupiah)")
-        fig, ax = plt.subplots(figsize=(8, 3.2)) # Ukuran grafik diperkecil agar tidak memakan layar
+        # Ukuran tinggi grafik disesuaikan agar sejajar indah dengan 3 baris angka di sebelahnya
+        fig, ax = plt.subplots(figsize=(8, 4.5)) 
         labels = ['Penghematan', 'SHU Warga', 'SHU Desa', 'SHU Pusat']
         values = [diskon_t, shu_b40_t, shu_desa_t, shu_pusat_t]
         colors = ['#2ecc71', '#3498db', '#f1c40f', '#e74c3c']
