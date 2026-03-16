@@ -13,14 +13,23 @@ POVERTY_GAP = 36.2
 AWAL_GINI = 0.37
 PDB_NASIONAL_2025 = 23821.1
 
-# --- SIDEBAR (PANEL KIRI) UNTUK SLIDER ---
-st.sidebar.title("🎛️ Pengaturan Simulasi")
-st.sidebar.markdown("Geser *slider* di bawah untuk melihat perubahan dampak ekonomi.")
+# --- TAMPILAN UTAMA (ATAS) ---
+st.title("⚡ Dashboard Simulasi Ekonomi KDKMP")
+st.markdown("Simulasi interaktif dampak makroekonomi dan sosial berdasarkan operasional Koperasi Desa Merah Putih.")
+st.markdown("---")
 
-pangsa_pasar = st.sidebar.slider("🛒 Pangsa Pasar KDKMP (%)", min_value=0, max_value=100, value=30, step=5)
-diskon = st.sidebar.slider("🏷️ Diskon Harga Sembako (%)", min_value=0, max_value=15, value=2, step=1)
-margin = st.sidebar.slider("📈 Margin KDKMP (%)", min_value=5, max_value=15, value=10, step=1)
-jumlah_kdkmp = st.sidebar.slider("🏪 Jumlah KDKMP Nasional", min_value=1, max_value=83762, value=83762, step=1000)
+# --- PENGATURAN SLIDER DI ATAS ---
+st.subheader("🎛️ Pengaturan Simulasi")
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    pangsa_pasar = st.slider("🛒 Pangsa Pasar KDKMP (%)", min_value=0, max_value=100, value=30, step=5)
+with col2:
+    diskon = st.slider("🏷️ Diskon Harga (%)", min_value=0, max_value=15, value=2, step=1)
+with col3:
+    margin = st.slider("📈 Margin KDKMP (%)", min_value=5, max_value=15, value=10, step=1)
+with col4:
+    jumlah_kdkmp = st.slider("🏪 Jumlah KDKMP", min_value=1, max_value=83762, value=83762, step=1000)
 
 # --- KALKULASI MATEMATIKA ---
 s = pangsa_pasar / 100
@@ -53,39 +62,35 @@ persen_miskin = min(100.0, (db_t / POVERTY_GAP) * 100)
 gini_drop = min(0.08, (db_t / 2000) * 0.08)
 new_gini = max(0.20, AWAL_GINI - gini_drop)
 
-# --- TAMPILAN UTAMA (KANAN) ---
-st.title("⚡ Dashboard Simulasi Ekonomi KDKMP")
-st.markdown("Simulasi interaktif dampak makroekonomi dan sosial berdasarkan operasional Koperasi Desa Merah Putih.")
+st.markdown("---")
 
-# Memasukkan kode HTML untuk tampilan Card
-html_out = f"""
-<div style="display: flex; gap: 15px; font-family: sans-serif; margin-bottom: 20px;">
-    <div style="flex: 1; background: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 5px solid #f39c12;">
-        <h4 style="margin-top: 0; color: #2c3e50; font-size: 16px; margin-bottom: 15px;">💰 Dampak Makroekonomi</h4>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; border-bottom: 1px dashed #ecf0f1; padding-bottom: 8px;">Tambahan PDB:<br><span style="color: #27ae60; font-weight: bold; font-size: 16px;">+ Rp {pdb_t:,.2f} T</span></div>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; border-bottom: 1px dashed #ecf0f1; padding-bottom: 8px;">Kontribusi ke PDB:<br><b style="color: #2c3e50; font-size: 15px;">+ {persen_pdb:.2f}%</b> dari target 2025</div>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; padding-bottom: 8px;">Total Daya Beli Baru:<br><b style="color: #2c3e50; font-size: 15px;">Rp {db_t:,.2f} T</b></div>
-    </div>
-    
-    <div style="flex: 1; background: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 5px solid #3498db;">
-        <h4 style="margin-top: 0; color: #2c3e50; font-size: 16px; margin-bottom: 15px;">🤝 Dampak Sosial</h4>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; border-bottom: 1px dashed #ecf0f1; padding-bottom: 8px;">Penutupan Poverty Gap:<br><span style="color: #27ae60; font-weight: bold; font-size: 16px;">{persen_miskin:.2f}% Tertutup</span></div>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; border-bottom: 1px dashed #ecf0f1; padding-bottom: 8px;">Gini Ratio Awal:<br><b style="color: #2c3e50; font-size: 15px;">{AWAL_GINI}</b></div>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; padding-bottom: 8px;">Estimasi Gini Baru:<br><span style="color: #27ae60; font-weight: bold; font-size: 16px;">{new_gini:.3f}</span></div>
-    </div>
-    
-    <div style="flex: 1; background: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 5px solid #2ecc71;">
-        <h4 style="margin-top: 0; color: #2c3e50; font-size: 16px; margin-bottom: 15px;">📊 Rincian Operasional</h4>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; border-bottom: 1px dashed #ecf0f1; padding-bottom: 8px;">KDKMP Aktif:<br><b style="color: #2c3e50; font-size: 15px;">{jumlah_kdkmp:,} Titik</b></div>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; border-bottom: 1px dashed #ecf0f1; padding-bottom: 8px;">Total Omzet Nasional:<br><b style="color: #2c3e50; font-size: 15px;">Rp {omzet_t:,.2f} T</b></div>
-        <div style="margin-bottom: 12px; font-size: 14px; color: #7f8c8d; padding-bottom: 8px;">Uang Berputar di Desa:<br><span style="color: #27ae60; font-weight: bold; font-size: 16px;">Rp {(shu_b40_t + shu_desa_t):,.2f} T</span></div>
-    </div>
-</div>
-"""
-st.markdown(html_out, unsafe_allow_html=True)
+# --- TAMPILAN KARTU (NATIVE STREAMLIT) ---
+card1, card2, card3 = st.columns(3)
+
+with card1:
+    with st.container(border=True):
+        st.subheader("💰 Dampak Makroekonomi")
+        st.metric(label="Tambahan PDB", value=f"+ Rp {pdb_t:,.2f} T")
+        st.metric(label="Kontribusi ke PDB 2025", value=f"+ {persen_pdb:.2f}%")
+        st.metric(label="Total Daya Beli Baru", value=f"Rp {db_t:,.2f} T")
+
+with card2:
+    with st.container(border=True):
+        st.subheader("🤝 Dampak Sosial")
+        st.metric(label="Penutupan Poverty Gap", value=f"{persen_miskin:.2f}%")
+        st.metric(label="Estimasi Gini Baru", value=f"{new_gini:.3f}", delta=f"-{gini_drop:.3f}", delta_color="inverse")
+        st.metric(label="Gini Ratio Awal", value=f"{AWAL_GINI}")
+
+with card3:
+    with st.container(border=True):
+        st.subheader("📊 Rincian Operasional")
+        st.metric(label="KDKMP Aktif", value=f"{jumlah_kdkmp:,} Titik")
+        st.metric(label="Total Omzet Nasional", value=f"Rp {omzet_t:,.2f} T")
+        st.metric(label="Uang Berputar di Desa", value=f"Rp {(shu_b40_t + shu_desa_t):,.2f} T")
 
 # --- RENDER GRAFIK ---
-st.markdown("### 📊 Distribusi Nilai Ekonomi Nasional (Triliun Rupiah)")
+st.markdown("---")
+st.subheader("📊 Distribusi Nilai Ekonomi Nasional (Triliun Rupiah)")
 fig, ax = plt.subplots(figsize=(10, 4))
 labels = ['Penghematan Warga', 'SHU Warga (82%)', 'SHU Desa (15%)', 'SHU Pusat (3%)']
 values = [diskon_t, shu_b40_t, shu_desa_t, shu_pusat_t]
