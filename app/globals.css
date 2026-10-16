@@ -1,0 +1,280 @@
+@import "tailwindcss";
+
+/*
+  Arah desain: meminjam bahasa visual E-Purchasing BPJS Ketenagakerjaan —
+  terang, lapang, kartu rounded-2xl, aksen biru yang dipakai hemat.
+
+  Setiap warna didefinisikan lengkap di :root, lalu HANYA nilainya yang ditimpa
+  di blok gelap. Kontras teks diukur (>= 4,5:1), bukan dikira-kira.
+
+  --seri-1..4 adalah warna identitas grafik (biru, oranye, hijau-toska, kuning) dari
+  palet kategorikal yang sudah lolos uji buta warna; sengaja terpisah dari
+  ok/warn/crit supaya "komponen PDB" tidak terbaca sebagai status.
+*/
+:root {
+  --ground: #f2f6fa;
+  --surface: #ffffff;
+  --surface-2: #eaf1f7;
+  --sidebar: #ffffff;
+  --ink: #0e2233;
+  --ink-2: #3d5568;
+  /* 5,39:1 di putih · 4,73:1 di surface-2. Nilai lama #7b93a8 hanya 2,8-3,2:1
+     padahal dipakai untuk teks 14px, bukan sekadar label kecil. */
+  --muted: #566d80;
+  --line: #dde7f0;
+  --line-strong: #c3d4e2;
+  --accent: #0b77bd;
+  --accent-soft: #e3f0fa;
+  /*
+    Aksen versi teks. --accent dipakai untuk bidang berwarna (tombol, batang,
+    garis); di ATAS --accent-soft ia cuma mencapai 4,13:1, jadi menu yang
+    sedang aktif — teks biru di atas biru muda — gagal terbaca. Yang ini
+    4,91:1 di atas soft dan 5,69:1 di atas putih.
+  */
+  --accent-ink: #0a6ba9;
+  --on-accent: #ffffff;
+  --brand: #0b77bd;
+  --ok: #257534;
+  --ok-soft: #ddf3e1;
+  /* 5,09:1 bahkan di latar paling pucat; nilai lama #b45309 hanya 4,41:1. */
+  --warn: #a8490a;
+  --warn-soft: #fdf0d3;
+  --crit: #b91c1c;
+  --crit-soft: #fde3e0;
+  --seri-1: #2a78d6;
+  --seri-2: #eb6834;
+  --seri-3: #1baf7a;
+  --seri-4: #eda100;
+  --bayang: 0 1px 3px rgb(14 34 51 / 0.07);
+  --bayang-naik: 0 8px 24px rgb(14 34 51 / 0.10);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #071520;
+    --surface: #0f2231;
+    --surface-2: #16303f;
+    --sidebar: #0b1c29;
+    --ink: #e6f0f8;
+    --ink-2: #b3c8d8;
+    --muted: #7e9bb0;
+    --line: #1e394b;
+    --line-strong: #2b5169;
+    --accent: #4aa8e0;
+    --accent-soft: #0e2d40;
+    /* Di palet gelap aksennya sudah 5,43:1 di atas soft — tak perlu dibedakan. */
+    --accent-ink: #4aa8e0;
+    --on-accent: #05131d;
+    --brand: #4aa8e0;
+    --ok: #6ede8a;
+    --ok-soft: #0d3320;
+    --warn: #f0c069;
+    --warn-soft: #3a2d12;
+    --crit: #f2938c;
+    --crit-soft: #3e1d1b;
+    --seri-1: #3987e5;
+    --seri-2: #d95926;
+    --seri-3: #199e70;
+  --seri-4: #c98500;
+    --seri-4: #c98500;
+    --bayang: 0 1px 3px rgb(0 0 0 / 0.4);
+    --bayang-naik: 0 8px 24px rgb(0 0 0 / 0.5);
+  }
+}
+
+/* Pilihan manual harus mengalahkan setelan sistem di KEDUA arah. */
+:root[data-theme="dark"] {
+  --ground: #071520;
+  --surface: #0f2231;
+  --surface-2: #16303f;
+  --sidebar: #0b1c29;
+  --ink: #e6f0f8;
+  --ink-2: #b3c8d8;
+  --muted: #7e9bb0;
+  --line: #1e394b;
+  --line-strong: #2b5169;
+  --accent: #4aa8e0;
+  --accent-soft: #0e2d40;
+  --accent-ink: #4aa8e0;
+  --on-accent: #05131d;
+  --brand: #4aa8e0;
+  --ok: #6ede8a;
+  --ok-soft: #0d3320;
+  --warn: #f0c069;
+  --warn-soft: #3a2d12;
+  --crit: #f2938c;
+  --crit-soft: #3e1d1b;
+  --seri-1: #3987e5;
+  --seri-2: #d95926;
+  --seri-3: #199e70;
+  --seri-4: #c98500;
+  --bayang: 0 1px 3px rgb(0 0 0 / 0.4);
+  --bayang-naik: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-sidebar: var(--sidebar);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-on-accent: var(--on-accent);
+  --color-brand: var(--brand);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-crit: var(--crit);
+  --color-crit-soft: var(--crit-soft);
+
+  --color-seri-1: var(--seri-1);
+  --color-seri-2: var(--seri-2);
+  --color-seri-3: var(--seri-3);
+  --color-seri-4: var(--seri-4);
+
+  --shadow-kartu: var(--bayang);
+  --shadow-naik: var(--bayang-naik);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Angka dalam kolom harus lurus; dipakai di hampir semua tabel. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+  Cincin fokus tunggal untuk seluruh aplikasi.
+
+  Sebelumnya tidak ada satu pun aturan fokus milik sendiri: tautan dan tombol
+  bergantung pada cincin bawaan peramban (tipis, beda-beda tiap peramban),
+  sementara 21 kolom isian justru MEMBUANG cincin itu lewat `outline-none` dan
+  menggantinya dengan perubahan warna tepi 1px — praktis tak terlihat, dan
+  sama sekali tak terlihat bagi yang sulit membedakan warna.
+
+  `outline-offset` positif membuat cincinnya berdiri di luar elemen, sehingga
+  tetap terbaca di atas tombol beraksen pekat maupun di atas latar terang —
+  tanpa perlu warna cincin yang berbeda-beda per tempat.
+
+  Aturan ini sengaja TIDAK dibungkus @layer: gaya tak berlapis mengalahkan
+  utilitas Tailwind yang berlapis, jadi tidak ada satu kelas pun yang bisa
+  menghapus cincin ini tanpa sengaja lagi.
+*/
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/*
+  Tautan lompat ke konten.
+
+  Disembunyikan sampai disorot papan ketik. Tanpa ini, pengguna papan ketik
+  melewati 12 menu yang sama persis sebelum sampai ke isi — di setiap halaman.
+*/
+.lewati {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 60;
+}
+.lewati:focus-visible {
+  left: 0.75rem;
+  top: 0.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--bayang-naik);
+}
+
+/* Sasaran lompatan tidak perlu menampilkan cincinnya sendiri. */
+main:focus {
+  outline: none;
+}
+
+/*
+  Ikon digambar sebagai SVG, bukan dimuat sebagai huruf.
+
+  Ukurannya 1em supaya ia mengikuti font-size induknya persis seperti glif
+  dulu: sebuah ikon selalu sepadan dengan teks di sebelahnya, dan tidak perlu
+  disetel ulang di tiap tempat pemakaian.
+*/
+.ikon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: middle;
+
+  /*
+   * Ikon tidak pernah pantas dimampatkan. Sebagai item flex ia bisa menyusut
+   * mengikuti sisa ruang, dan drag_indicator sempat menyusut jadi 5,8px
+   * karena tetangganya lebih rakus.
+   */
+  flex: none;
+}
+
+/*
+  Ikon tombol tema dipilih oleh CSS, memakai aturan yang sama persis dengan
+  palet di atas. Dengan begitu ikonnya sudah benar pada gambar pertama, bahkan
+  sebelum JavaScript jalan — tidak ada ikon yang melompat setelah hidrasi.
+*/
+.ikon-terang {
+  display: none;
+}
+.ikon-gelap {
+  display: inline-block;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ikon-terang {
+    display: inline-block;
+  }
+  :root:not([data-theme="light"]) .ikon-gelap {
+    display: none;
+  }
+}
+:root[data-theme="dark"] .ikon-terang {
+  display: inline-block;
+}
+:root[data-theme="dark"] .ikon-gelap {
+  display: none;
+}
+:root[data-theme="light"] .ikon-terang {
+  display: none;
+}
+:root[data-theme="light"] .ikon-gelap {
+  display: inline-block;
+}
+
+/* Mencegah kedip bertahap saat tema berganti. */
+@media (prefers-reduced-motion: no-preference) {
+  :root.ganti-tema * {
+    transition: none !important;
+  }
+}
+
+/*
+  Penggeser (input range) memakai warna aksen bawaan peramban. Tingginya
+  dinaikkan supaya mudah disentuh di ponsel tanpa membuat jempol meleset.
+*/
+input[type="range"] {
+  accent-color: var(--accent);
+  height: 1.5rem;
+  cursor: pointer;
+}
