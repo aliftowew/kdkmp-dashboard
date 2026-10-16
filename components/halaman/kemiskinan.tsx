@@ -1,10 +1,10 @@
 "use client";
 
 import { MeteranCakupan } from "@/components/grafik.tsx";
-import { IsianAngka, PemilihSkenario, Penggeser, TombolBagikan, useParameter } from "@/components/parameter.tsx";
-import { Catatan, Kartu, KepalaHalaman, Lencana, Panel, Rumus, Statistik, Td, Th } from "@/components/ui.tsx";
+import { RingkasanVariabel, TombolBagikan, useParameter } from "@/components/parameter.tsx";
+import { Catatan, KepalaHalaman, Lencana, Panel, Rumus, Statistik, Td, Th } from "@/components/ui.tsx";
 import { angka, bulat, persen, rupiah, rupiahRingkas } from "@/lib/format.ts";
-import { AWAL, type IdSkenario, SKENARIO, hitung, skenarioAktif } from "@/lib/model.ts";
+import { type IdSkenario, SKENARIO, hitung, skenarioAktif } from "@/lib/model.ts";
 
 const BANDING = [
   { ind: "Porsi uang ke petani", biasa: "30% – 40%", kop: "80%", negara: "India (Amul)" },
@@ -14,7 +14,7 @@ const BANDING = [
 ];
 
 export function HalamanKemiskinan() {
-  const { p, h, ubah } = useParameter();
+  const { p, h } = useParameter();
   const m = h.kemiskinan;
   const aktif = skenarioAktif(p);
   const cukup = m.cakupanGap >= 1;
@@ -28,19 +28,15 @@ export function HalamanKemiskinan() {
         aksi={<TombolBagikan />}
       />
 
-      <Kartu className="mt-8 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-[0.95rem] font-bold tracking-[-0.01em]">Asumsi</h2>
-          <PemilihSkenario />
-        </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          <IsianAngka label="P0 · % penduduk miskin" nilai={p.p0} bawaan={AWAL.p0} ubah={(v) => ubah({ p0: v })} satuan="%" sumber="BPS, Sep 2025" />
-          <IsianAngka label="P1 · indeks kedalaman" nilai={p.p1} bawaan={AWAL.p1} ubah={(v) => ubah({ p1: v })} sumber="BPS, Sep 2025" />
-          <IsianAngka label="Garis kemiskinan" nilai={p.gk} bawaan={AWAL.gk} ubah={(v) => ubah({ gk: v })} langkah={1} satuan="Rp/bln" sumber="BPS, Sep 2025" />
-          <IsianAngka label="Penduduk miskin" nilai={p.miskinJuta} bawaan={AWAL.miskinJuta} ubah={(v) => ubah({ miskinJuta: v })} satuan="juta" sumber="BPS, Sep 2025" />
-          <Penggeser label="Margin jadi SHU anggota" nilai={p.bagiAnggota} ubah={(v) => ubah({ bagiAnggota: v })} min={0} max={100} />
-        </div>
-      </Kartu>
+      <RingkasanVariabel
+        butir={[
+          { label: "P0", nilai: `${angka(p.p0, 2)}%` },
+          { label: "P1", nilai: angka(p.p1, 3) },
+          { label: "GK", nilai: rupiah(p.gk) },
+          { label: "Miskin", nilai: `${angka(p.miskinJuta, 2)} jt` },
+          { label: "SHU anggota", nilai: `${angka(p.bagiAnggota, 0)}% margin` },
+        ]}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Statistik ikon="groups" nilai={rupiahRingkas(m.povertyGap)} label="Poverty gap nasional / tahun" nada="awas" catatan="uang untuk mengangkat semua ke GK" />

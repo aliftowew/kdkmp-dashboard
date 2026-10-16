@@ -1,50 +1,13 @@
 "use client";
 
-import { IsianAngka, TombolBagikan, TombolKembalikan, useParameter } from "@/components/parameter.tsx";
-import { Catatan, Kartu, KepalaHalaman, Panel, Rumus, Td, Th } from "@/components/ui.tsx";
+import Link from "next/link";
+import { Fragment } from "react";
+
+import { useParameter } from "@/components/parameter.tsx";
+import { Catatan, KepalaHalaman, Lencana, Panel, Rumus, Td, Th } from "@/components/ui.tsx";
 import { angka } from "@/lib/format.ts";
-import { AWAL, type Parameter } from "@/lib/model.ts";
-
-type Butir = { kunci: Exclude<keyof Parameter, "substitusi">; label: string; satuan?: string; sumber: string; langkah?: number };
-
-const KELOMPOK: { judul: string; butir: Butir[] }[] = [
-  {
-    judul: "Kabupaten Bantul (sampel)",
-    butir: [
-      { kunci: "penduduk", label: "Jumlah penduduk", satuan: "jiwa", langkah: 1, sumber: "Dukcapil per 31 Des 2024" },
-      { kunci: "eFood", label: "Pengeluaran makanan / kapita / bulan", satuan: "Rp", langkah: 1, sumber: "BPS DIY (Susenas) 2024" },
-      { kunci: "pdrbMiliar", label: "PDRB ADHB", satuan: "miliar", sumber: "BPS Kab. Bantul 2024" },
-      { kunci: "desa", label: "Jumlah desa", langkah: 1, sumber: "bantulkab.go.id" },
-      { kunci: "kerjaPerKdkmp", label: "Pekerja per KDKMP", satuan: "orang", langkah: 1, sumber: "Asumsi analisis" },
-      { kunci: "upah", label: "Upah per bulan", satuan: "Rp", langkah: 50000, sumber: "Asumsi analisis" },
-    ],
-  },
-  {
-    judul: "Struktur margin (TORA SERA)",
-    butir: [
-      { kunci: "bagiDesa", label: "Margin tetap di desa", satuan: "%", sumber: "82% anggota + 15% KDKMP/desa" },
-      { kunci: "bagiAnggota", label: "Margin jadi SHU anggota", satuan: "%", sumber: "Danantara / Agrinas" },
-    ],
-  },
-  {
-    judul: "Nasional",
-    butir: [
-      { kunci: "jumlahKdkmp", label: "Jumlah KDKMP", langkah: 1, sumber: "Wilayah setingkat desa" },
-      { kunci: "pdbTriliun", label: "PDB ADHB 2025", satuan: "triliun", sumber: "BRS BPS 5 Feb 2026" },
-      { kunci: "porsiKonsumsi", label: "Porsi konsumsi RT thd PDB", satuan: "%", sumber: "BPS 2025" },
-    ],
-  },
-  {
-    judul: "Kemiskinan & ketimpangan",
-    butir: [
-      { kunci: "p0", label: "P0 · % penduduk miskin", satuan: "%", sumber: "BPS Sep 2025" },
-      { kunci: "p1", label: "P1 · indeks kedalaman", sumber: "BPS Sep 2025" },
-      { kunci: "gk", label: "Garis kemiskinan", satuan: "Rp/bln", langkah: 1, sumber: "BPS Sep 2025" },
-      { kunci: "miskinJuta", label: "Penduduk miskin", satuan: "juta", sumber: "BPS Sep 2025" },
-      { kunci: "gini", label: "Rasio Gini", langkah: 0.001, sumber: "BPS 2025" },
-    ],
-  },
-];
+import { AWAL } from "@/lib/model.ts";
+import { KELOMPOK_VARIABEL } from "@/lib/variabel.ts";
 
 const KOREKSI = [
   {
@@ -67,66 +30,120 @@ const KOREKSI = [
   },
 ];
 
+const ALUR = [
+  { no: "①", judul: "Penghematan harga", rumus: "S = Pop × E_food × s × d × 12", hasil: "ΔY_hemat = S × k" },
+  { no: "②", judul: "Nilai tertahan di desa", rumus: "Retained = Pop × E_food × s × 12 × margin × bagian desa", hasil: "ΔY_tertahan = Retained × k" },
+  { no: "③", judul: "Lapangan kerja", rumus: "Gaji = pekerja/KDKMP × desa × upah × 12", hasil: "ΔY_kerja = Gaji × k" },
+  { no: "⑥", judul: "Skala nasional", rumus: "skala = KDKMP nasional ÷ desa Bantul", hasil: "ΔY_desa = ΔY_Bantul × skala" },
+  { no: "⑦", judul: "Substitusi impor", rumus: "Σ (nilai impor × % digantikan)", hasil: "ΔY_impor = Σ × k" },
+  { no: "K", judul: "Poverty gap", rumus: "N miskin × (P1 ÷ P0) × GK × 12", hasil: "vs ΔC = (SHU anggota + diskon) × skala" },
+  { no: "G", judul: "Rasio Gini", rumus: "G′ = 1 − 2A (trapesium Lorenz 3 kelompok)", hasil: "G = G′_baru × (Gini resmi ÷ G′_lama)" },
+];
+
 export function HalamanAsumsi() {
-  const { p, h, ubah } = useParameter();
+  const { p, h, alamat } = useParameter();
+  const qs = alamat ? `?${alamat}` : "";
 
   return (
     <>
       <KepalaHalaman
         kicker="Rujukan"
-        judul="Asumsi & sumber data"
-        keterangan="Semua angka dasar bisa diganti. Isian yang berbeda dari bawaan diberi tepi biru dan tautan untuk mengembalikannya."
+        judul="Metode & sumber"
+        keterangan="Bagaimana setiap angka dihitung, dan dari mana data dasarnya berasal."
         aksi={
-          <div className="flex flex-wrap gap-2">
-            <TombolKembalikan />
-            <TombolBagikan />
-          </div>
+          <Link
+            href={`/variabel${qs}`}
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent shadow-kartu hover:opacity-90"
+          >
+            Ubah variabel
+          </Link>
         }
       />
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-2">
-        {KELOMPOK.map((k) => (
-          <Kartu key={k.judul} className="p-5">
-            <h2 className="text-[0.95rem] font-bold tracking-[-0.01em]">{k.judul}</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {k.butir.map((b) => (
-                <IsianAngka
-                  key={b.kunci}
-                  label={b.label}
-                  nilai={p[b.kunci]}
-                  bawaan={AWAL[b.kunci]}
-                  ubah={(v) => ubah({ [b.kunci]: v } as Partial<Parameter>)}
-                  satuan={b.satuan}
-                  sumber={b.sumber}
-                  langkah={b.langkah}
-                />
+      <div className="mt-8">
+        <Panel judul="Alur hitung">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <Th>Langkah</Th>
+                <Th>Rumus</Th>
+                <Th>Hasil</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {ALUR.map((a) => (
+                <tr key={a.judul} className="align-top hover:bg-surface-2">
+                  <Td className="font-semibold whitespace-nowrap text-ink">
+                    {a.no} {a.judul}
+                  </Td>
+                  <Td className="min-w-[16rem] font-mono text-[0.78rem]">{a.rumus}</Td>
+                  <Td className="min-w-[14rem] font-mono text-[0.78rem]">{a.hasil}</Td>
+                </tr>
               ))}
-            </div>
-          </Kartu>
-        ))}
+            </tbody>
+          </table>
+        </Panel>
       </div>
 
       <div className="mt-6">
         <Panel judul="Angka pengganda (multiplier effect)" kanan={<span className="tnum text-sm font-bold text-accent-ink">k = {angka(h.k, 4)}</span>}>
-          <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-            <div className="flex flex-col gap-3 text-sm text-ink-2">
-              <p>
-                Uang hemat dan SHU tidak berhenti di satu dompet. Dibelanjakan ke pedagang sayur, ojek, dan penjahit,
-                lalu mereka membelanjakannya lagi ke petani, SPBU, dan pabrik — berputar beberapa kali sebelum habis
-                bocor ke pajak dan impor.
-              </p>
-              <Rumus>Y = C + I + G + (X − M) = c(1 − t)Y + I + G + X − mY</Rumus>
-              <Rumus>k = 1 ÷ (1 − c(1 − t) + m)</Rumus>
-              <Rumus>
-                = 1 ÷ (1 − {angka(p.mpc, 3)} × (1 − {angka(p.pajak, 3)}) + {angka(p.impor, 4)}) = {angka(h.k, 4)}
-              </Rumus>
-            </div>
-            <div className="grid gap-4">
-              <IsianAngka label="c · kecenderungan konsumsi" nilai={p.mpc} bawaan={AWAL.mpc} ubah={(v) => ubah({ mpc: v })} langkah={0.001} sumber="UKM JEM, tabel I-O 2008" />
-              <IsianAngka label="t · rasio pajak thd PDB" nilai={p.pajak} bawaan={AWAL.pajak} ubah={(v) => ubah({ pajak: v })} langkah={0.001} sumber="CEIC, Des 2024 (11,8%)" />
-              <IsianAngka label="m · impor thd PDB" nilai={p.impor} bawaan={AWAL.impor} ubah={(v) => ubah({ impor: v })} langkah={0.0001} sumber="Trading Economics / Bank Dunia 2024 (20,39%)" />
-            </div>
+          <div className="flex flex-col gap-3 p-5 text-sm text-ink-2">
+            <p className="max-w-[76ch]">
+              Uang hemat dan SHU tidak berhenti di satu dompet. Ia dibelanjakan ke pedagang sayur, ojek, dan penjahit,
+              lalu mereka membelanjakannya lagi ke petani, SPBU, dan pabrik — berputar beberapa kali sebelum bocor ke
+              pajak dan impor.
+            </p>
+            <Rumus>Y = C + I + G + (X − M) = c(1 − t)Y + I + G + X − mY</Rumus>
+            <Rumus>k = 1 ÷ (1 − c(1 − t) + m)</Rumus>
+            <Rumus>
+              = 1 ÷ (1 − {angka(p.mpc, 3)} × (1 − {angka(p.pajak, 3)}) + {angka(p.impor, 4)}) = {angka(h.k, 4)}
+            </Rumus>
           </div>
+        </Panel>
+      </div>
+
+      <div className="mt-6">
+        <Panel judul="Data dasar dan sumbernya">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <Th>Variabel</Th>
+                <Th kanan>Dipakai</Th>
+                <Th>Sumber</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {KELOMPOK_VARIABEL.map((k) => (
+                <Fragment key={k.id}>
+                  <tr>
+                    <td colSpan={3} className="border-t border-line bg-surface-2 px-5 py-2 text-[0.68rem] font-bold tracking-[0.06em] text-muted uppercase">
+                      {k.judul}
+                    </td>
+                  </tr>
+                  {k.butir.map((v) => {
+                    const berubah = p[v.kunci] !== AWAL[v.kunci];
+                    return (
+                      <tr key={v.kunci} className="hover:bg-surface-2">
+                        <Td className="text-ink">
+                          {v.label}
+                          {v.simbol && <span className="ml-1.5 font-mono text-xs text-muted">{v.simbol}</span>}
+                        </Td>
+                        <Td kanan className="whitespace-nowrap">
+                          <span className="inline-flex items-center gap-2">
+                            {berubah && <Lencana>diubah</Lencana>}
+                            <span className={berubah ? "font-semibold text-ink" : ""}>
+                              {p[v.kunci].toLocaleString("id-ID")} {v.satuan}
+                            </span>
+                          </span>
+                        </Td>
+                        <Td className="min-w-[14rem] text-ink-2">{v.sumber}</Td>
+                      </tr>
+                    );
+                  })}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
         </Panel>
       </div>
 

@@ -132,7 +132,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <Ikon nama="info" className="mt-0.5 text-[1rem] text-muted" />
             <p className="text-xs text-ink-2">
               Angka adalah <strong className="font-semibold text-ink">simulasi potensi</strong>, bukan realisasi.
-              Ubah asumsinya untuk menguji kepekaan hasil.
+              Ubah angkanya di menu Variabel untuk menguji kepekaan hasil.
             </p>
           </div>
         </div>
@@ -157,9 +157,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <p className="hidden text-sm text-muted lg:block">Simulasi dampak ekonomi & sosial program KDKMP</p>
           <div className="ml-auto flex items-center gap-2">
             <Link
+              href={qs ? `/variabel?${qs}` : "/variabel"}
+              aria-label="Ubah variabel"
+              title="Ubah variabel"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface text-[1.15rem] text-ink-2 transition-colors hover:bg-surface-2"
+            >
+              <Ikon nama="tune" />
+            </Link>
+            <Link
               href={qs ? `/asumsi?${qs}` : "/asumsi"}
-              aria-label="Asumsi dan sumber data"
-              title="Asumsi & sumber data"
+              aria-label="Metode dan sumber data"
+              title="Metode & sumber data"
               className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface text-[1.15rem] text-ink-2 transition-colors hover:bg-surface-2"
             >
               <Ikon nama="help_outline" />
