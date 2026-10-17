@@ -3,13 +3,13 @@
 import Link from "next/link";
 
 import { BatangTumpuk } from "@/components/grafik.tsx";
-import { PemilihSkenario, Penggeser, TombolBagikan, TombolKembalikan, useParameter } from "@/components/parameter.tsx";
-import { Catatan, Kartu, KepalaHalaman, Lencana, Panel, Statistik, Td, Th } from "@/components/ui.tsx";
+import { RingkasanVariabel, TombolBagikan, useParameter } from "@/components/parameter.tsx";
+import { Catatan, KepalaHalaman, Lencana, Panel, Rumus, Statistik, Td, Th } from "@/components/ui.tsx";
 import { angka, bulat, persen, rupiahRingkas } from "@/lib/format.ts";
 import { type IdSkenario, SKENARIO, hitung, skenarioAktif } from "@/lib/model.ts";
 
 export function HalamanRingkasan() {
-  const { p, h, ubah, alamat } = useParameter();
+  const { p, h, alamat } = useParameter();
   const aktif = skenarioAktif(p);
   const turunGini = h.ketimpangan.giniLama - h.ketimpangan.giniBaru;
   const qs = alamat ? `?${alamat}` : "";
@@ -21,36 +21,24 @@ export function HalamanRingkasan() {
         judul="Dampak KDKMP dalam satu layar"
         keterangan={
           <>
-            Berapa persen Koperasi Desa/Kelurahan Merah Putih bisa menyumbang ke PDB? Geser asumsi di bawah — seluruh
-            angka di aplikasi ini ikut berubah.
+            Berapa persen Koperasi Desa/Kelurahan Merah Putih bisa menyumbang ke PDB, menutup poverty gap, dan
+            menurunkan ketimpangan? Angka dasarnya diatur di menu Variabel.
           </>
         }
         aksi={
-          <div className="flex flex-wrap gap-2">
-            <TombolKembalikan />
-            <TombolBagikan />
-          </div>
+          <TombolBagikan />
         }
       />
 
-      <Kartu className="mt-8 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-[0.95rem] font-bold tracking-[-0.01em]">Skenario</h2>
-          <PemilihSkenario />
-        </div>
-        <div className="mt-5 grid gap-x-8 gap-y-5 md:grid-cols-3">
-          <Penggeser
-            label="Pangsa belanja via KDKMP (s)"
-            nilai={p.pangsa}
-            ubah={(n) => ubah({ pangsa: n })}
-            min={0}
-            max={100}
-            langkah={5}
-          />
-          <Penggeser label="Diskon harga (d)" nilai={p.diskon} ubah={(n) => ubah({ diskon: n })} min={0} max={15} langkah={0.5} />
-          <Penggeser label="Margin KDKMP" nilai={p.margin} ubah={(n) => ubah({ margin: n })} min={0} max={15} langkah={0.5} />
-        </div>
-      </Kartu>
+      <RingkasanVariabel
+        butir={[
+          { label: "Pangsa", nilai: `${angka(p.pangsa, 0)}%` },
+          { label: "Diskon", nilai: `${angka(p.diskon, 1)}%` },
+          { label: "Margin", nilai: `${angka(p.margin, 1)}%` },
+          { label: "KDKMP", nilai: bulat(p.jumlahKdkmp) },
+          { label: "k", nilai: angka(h.k, 3) },
+        ]}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Statistik
@@ -126,7 +114,59 @@ export function HalamanRingkasan() {
       </div>
 
       <div className="mt-6">
-        <Panel judul="Perbandingan tiga skenario" kanan={<span className="text-xs text-muted">Asumsi lain mengikuti isian Anda</span>}>
+        <Panel judul="Dari mana angka-angka di atas">
+          <div className="grid gap-px bg-line md:grid-cols-2">
+            {[
+              {
+                judul: "Tambahan PDB nasional",
+                hasil: rupiahRingkas(h.nasional.dYTotal),
+                rumus: "ΔY = (ΔY hemat + ΔY tertahan + ΔY kerja)_Bantul × skala + substitusi impor × k",
+                isi: `= ${rupiahRingkas(h.bantul.dYTotal)} × ${angka(h.skala, 1)} + ${rupiahRingkas(h.nasional.substitusi)} × ${angka(h.k, 3)}`,
+                href: "/nasional",
+              },
+              {
+                judul: "Terhadap PDB 2025",
+                hasil: persen(h.nasional.persenPdb),
+                rumus: "% PDB = ΔY nasional ÷ PDB ADHB 2025",
+                isi: `= ${rupiahRingkas(h.nasional.dYTotal)} ÷ Rp ${angka(p.pdbTriliun, 1)} T`,
+                href: "/nasional",
+              },
+              {
+                judul: "Daya beli baru vs poverty gap",
+                hasil: `${angka(h.kemiskinan.cakupanGap, 1)}×`,
+                rumus: "(SHU anggota + diskon) × skala ÷ (N miskin × P1/P0 × GK × 12)",
+                isi: `= ${rupiahRingkas(h.kemiskinan.dayaBeliNasional)} ÷ ${rupiahRingkas(h.kemiskinan.povertyGap)}`,
+                href: "/kemiskinan",
+              },
+              {
+                judul: "Rasio Gini sesudah KDKMP",
+                hasil: angka(h.ketimpangan.giniBaru, 3),
+                rumus: "G = (1 − 2A) × koreksi, A = luas di bawah kurva Lorenz sesudah manfaat dibagi",
+                isi: `= ${angka(h.ketimpangan.giniBaru / h.ketimpangan.koreksi, 4)} × ${angka(h.ketimpangan.koreksi, 3)}`,
+                href: "/ketimpangan",
+              },
+            ].map((r) => (
+              <div key={r.judul} className="flex flex-col gap-2 bg-surface px-5 py-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="text-sm font-semibold text-ink">{r.judul}</h3>
+                  <span className="tnum text-lg font-extrabold tracking-[-0.02em]">{r.hasil}</span>
+                </div>
+                <Rumus>
+                  {r.rumus}
+                  <br />
+                  {r.isi}
+                </Rumus>
+                <Link href={`${r.href}${qs}`} className="self-start text-xs font-medium text-accent-ink hover:underline">
+                  Lihat langkah lengkap →
+                </Link>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+
+      <div className="mt-6">
+        <Panel judul="Perbandingan tiga skenario" kanan={<span className="text-xs text-muted">Variabel lain mengikuti menu Variabel</span>}>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
@@ -174,7 +214,7 @@ export function HalamanRingkasan() {
           Bantul, dan bahwa penghematan serta SHU dibelanjakan kembali di dalam negeri. Hasilnya batas atas yang masuk
           akal, bukan ramalan. Lihat{" "}
           <Link href={`/asumsi${qs}`} className="font-medium text-accent-ink hover:underline">
-            asumsi & sumber data
+            metode & sumber data
           </Link>
           .
         </Catatan>

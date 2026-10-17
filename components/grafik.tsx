@@ -26,7 +26,7 @@ export function BatangTumpuk({ segmen, judulAria }: { segmen: Segmen[]; judulAri
             />
           ))}
       </div>
-      <figcaption className={`grid gap-x-6 gap-y-2 sm:grid-cols-2 ${segmen.length > 3 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+      <figcaption className={`grid gap-x-6 gap-y-2 sm:grid-cols-2 ${segmen.length > 3 ? "2xl:grid-cols-4" : "lg:grid-cols-3"}`}>
         {segmen.map((s) => (
           <div key={s.label} className="flex items-start gap-2">
             <span className="mt-1 h-3 w-3 shrink-0 rounded-sm" style={{ background: s.warna }} aria-hidden="true" />

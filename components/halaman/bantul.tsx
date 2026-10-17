@@ -1,16 +1,16 @@
 "use client";
 
 import { BatangTumpuk } from "@/components/grafik.tsx";
-import { IsianAngka, PemilihSkenario, Penggeser, TombolBagikan, useParameter } from "@/components/parameter.tsx";
-import { Catatan, Kartu, KepalaHalaman, Panel, Rumus, Statistik, Td, Th } from "@/components/ui.tsx";
+import { RingkasanVariabel, TombolBagikan, useParameter } from "@/components/parameter.tsx";
+import { Catatan, KepalaHalaman, Panel, Rumus, Statistik, Td, Th } from "@/components/ui.tsx";
 import { angka, bulat, persen, rupiah, rupiahRingkas } from "@/lib/format.ts";
-import { AWAL, hitung } from "@/lib/model.ts";
+import { hitung } from "@/lib/model.ts";
 
 const PANGSA = [30, 50, 75, 100];
 const MARGIN = [7, 10, 12];
 
 export function HalamanBantul() {
-  const { p, h, ubah } = useParameter();
+  const { p, h } = useParameter();
   const b = h.bantul;
   const k = h.k;
 
@@ -49,43 +49,20 @@ export function HalamanBantul() {
       <KepalaHalaman
         kicker="Dampak ekonomi"
         judul="PDRB Kabupaten Bantul"
-        keterangan={`Bantul dipakai sebagai sampel: ${bulat(p.penduduk)} jiwa, ${bulat(p.desa)} desa, PDRB Rp ${bulat(p.pdrbMiliar)} miliar (ADHB 2024).`}
+        keterangan={`Bantul dihitung rinci sebagai sampel: ${bulat(p.penduduk)} jiwa, ${bulat(p.desa)} desa, PDRB Rp ${bulat(p.pdrbMiliar)} miliar (ADHB 2024).`}
         aksi={<TombolBagikan />}
       />
 
-      <Kartu className="mt-8 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-[0.95rem] font-bold tracking-[-0.01em]">Asumsi skenario</h2>
-          <PemilihSkenario />
-        </div>
-        <div className="mt-5 grid gap-x-8 gap-y-5 md:grid-cols-2 xl:grid-cols-4">
-          <Penggeser label="Pangsa belanja via KDKMP" nilai={p.pangsa} ubah={(n) => ubah({ pangsa: n })} min={0} max={100} langkah={5} />
-          <Penggeser label="Diskon harga" nilai={p.diskon} ubah={(n) => ubah({ diskon: n })} min={0} max={15} langkah={0.5} />
-          <Penggeser
-            label="Margin KDKMP"
-            nilai={p.margin}
-            ubah={(n) => ubah({ margin: n })}
-            min={0}
-            max={15}
-            langkah={0.5}
-            keterangan="TORA SERA: 7–12%"
-          />
-          <Penggeser
-            label="Margin yang tetap di desa"
-            nilai={p.bagiDesa}
-            ubah={(n) => ubah({ bagiDesa: n })}
-            min={0}
-            max={100}
-            keterangan="82% anggota + 15% desa"
-          />
-        </div>
-        <div className="mt-5 grid gap-4 border-t border-line pt-5 sm:grid-cols-2 lg:grid-cols-4">
-          <IsianAngka label="Pekerja per KDKMP" nilai={p.kerjaPerKdkmp} bawaan={AWAL.kerjaPerKdkmp} ubah={(n) => ubah({ kerjaPerKdkmp: n })} langkah={1} satuan="orang" />
-          <IsianAngka label="Upah per bulan" nilai={p.upah} bawaan={AWAL.upah} ubah={(n) => ubah({ upah: n })} langkah={50000} satuan="Rp" />
-          <IsianAngka label="Jumlah desa (KDKMP)" nilai={p.desa} bawaan={AWAL.desa} ubah={(n) => ubah({ desa: n })} langkah={1} sumber="bantulkab.go.id" />
-          <IsianAngka label="PDRB Bantul" nilai={p.pdrbMiliar} bawaan={AWAL.pdrbMiliar} ubah={(n) => ubah({ pdrbMiliar: n })} satuan="miliar" sumber="BPS Bantul, ADHB 2024" />
-        </div>
-      </Kartu>
+      <RingkasanVariabel
+        butir={[
+          { label: "Pangsa", nilai: `${angka(p.pangsa, 0)}%` },
+          { label: "Diskon", nilai: `${angka(p.diskon, 1)}%` },
+          { label: "Margin", nilai: `${angka(p.margin, 1)}%` },
+          { label: "Tetap di desa", nilai: `${angka(p.bagiDesa, 0)}%` },
+          { label: "Pekerja/KDKMP", nilai: bulat(p.kerjaPerKdkmp) },
+          { label: "Upah", nilai: rupiahRingkas(p.upah) },
+        ]}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Statistik ikon="trending_up" nilai={rupiahRingkas(b.dYTotal)} label="Tambahan PDRB / tahun" catatan="ΔY hemat + tertahan + kerja" />
@@ -154,7 +131,7 @@ export function HalamanBantul() {
           </div>
         </Panel>
 
-        <Panel judul="Kepekaan: % PDRB menurut pangsa × margin" kanan={<span className="text-xs text-muted">diskon {angka(p.diskon, 1)}%</span>}>
+        <Panel judul="Kepekaan: % PDRB menurut pangsa × margin" kanan={<span className="text-xs text-muted">diskon {angka(p.diskon, 1)}% · sel biru = variabel Anda</span>}>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
@@ -192,24 +169,22 @@ export function HalamanBantul() {
 }
 
 function RantaiPasok() {
-  const { p, h, ubah } = useParameter();
+  const { p, h } = useParameter();
   const r = h.rantai;
   return (
     <div className="mt-6">
       <Panel judul="④ Rantai pembelian beras: petani → KDKMP → konsumen">
         <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <div className="flex flex-col gap-5">
-            <IsianAngka
-              label="Margin pemasaran total"
-              nilai={p.marginRantai}
-              bawaan={AWAL.marginRantai}
-              ubah={(n) => ubah({ marginRantai: n })}
-              langkah={100}
-              satuan="Rp/kg"
-              sumber="Penelitian di Kab. Semarang (Kabarbursa)"
-            />
-            <Penggeser label="Berpindah ke petani" nilai={p.bagiPetani} ubah={(n) => ubah({ bagiPetani: n })} min={0} max={100 - p.bagiKonsumen} />
-            <Penggeser label="Jadi harga lebih murah" nilai={p.bagiKonsumen} ubah={(n) => ubah({ bagiKonsumen: n })} min={0} max={100 - p.bagiPetani} />
+          <div className="flex flex-col gap-3 text-sm text-ink-2">
+            <p>
+              Rantai beras saat ini: petani → tengkulak → penggilingan → pedagang besar → pengecer. Total margin pemasaran
+              bisa mencapai <strong className="tnum text-ink">{rupiah(p.marginRantai)}/kg</strong>.
+            </p>
+            <p>
+              Bila rantainya dipangkas menjadi <strong className="text-ink">petani → KDKMP → konsumen</strong>, margin itu
+              dibagi ulang: {p.bagiPetani}% ke petani, {p.bagiKonsumen}% jadi harga lebih murah, dan sisanya{" "}
+              {100 - p.bagiPetani - p.bagiKonsumen}% menanggung biaya operasional KDKMP.
+            </p>
           </div>
           <div className="flex flex-col gap-4">
             <div className="grid gap-3 sm:grid-cols-3">

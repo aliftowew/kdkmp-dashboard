@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useId, useMemo, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { Ikon } from "@/components/ui.tsx";
@@ -275,5 +276,46 @@ export function TombolKembalikan() {
       <Ikon nama="refresh" className="text-[1.1rem]" />
       Kembalikan asumsi awal
     </button>
+  );
+}
+
+/* ------------------------------------------------- ringkasan variabel */
+
+/**
+ * Pita "variabel yang dipakai" di atas tiap halaman hasil.
+ *
+ * Halaman hasil sengaja tidak berisi isian lagi — supaya yang terbaca
+ * pertama adalah angkanya. Tapi angka tanpa asumsinya menyesatkan, jadi
+ * variabel yang menentukan halaman itu tetap disebut di sini, dengan satu
+ * tautan ke menu Variabel untuk mengubahnya.
+ */
+export function RingkasanVariabel({ butir }: { butir: { label: string; nilai: string }[] }) {
+  const { p, alamat } = useParameter();
+  const aktif = skenarioAktif(p);
+  const diubah = alamat ? alamat.split("&").length : 0;
+  return (
+    <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-line bg-surface px-4 py-3 shadow-kartu sm:flex-row sm:items-center">
+      <div className="flex shrink-0 items-center gap-2">
+        <span className="font-mono text-[0.62rem] tracking-[0.1em] text-muted uppercase">Skenario</span>
+        <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[0.72rem] font-semibold text-accent-ink">
+          {aktif ? SKENARIO[aktif].label : "Kustom"}
+        </span>
+      </div>
+      <ul className="flex min-w-0 flex-1 flex-wrap gap-x-4 gap-y-1 text-sm sm:border-l sm:border-line sm:pl-4">
+        {butir.map((b) => (
+          <li key={b.label} className="whitespace-nowrap text-ink-2">
+            {b.label} <strong className="tnum font-semibold text-ink">{b.nilai}</strong>
+          </li>
+        ))}
+      </ul>
+      <Link
+        href={`/variabel${alamat ? `?${alamat}` : ""}`}
+        className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-xl border border-line px-3 py-1.5 text-sm font-semibold text-accent-ink transition-colors hover:bg-surface-2 sm:self-auto print:hidden"
+      >
+        <Ikon nama="tune" className="text-[1rem]" />
+        Ubah variabel
+        {diubah > 0 && <span className="tnum text-xs font-medium text-muted">· {diubah} diubah</span>}
+      </Link>
+    </div>
   );
 }

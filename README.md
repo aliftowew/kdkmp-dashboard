@@ -11,9 +11,10 @@ mengikuti E-Purchasing BPJS Ketenagakerjaan (Next.js + Tailwind v4, terang/gelap
 | PDB Nasional | Skala 83.762 KDKMP + ⑦ substitusi impor per komoditas (bisa diubah) |
 | Kemiskinan | Poverty gap (P1/P0 × GK × N miskin) vs tambahan daya beli (SHU + diskon) |
 | Rasio Gini | Kurva Lorenz sebelum/sesudah, distribusi manfaat 55/35/10 |
-| Asumsi & sumber | Semua angka dasar bisa diganti, turunan angka pengganda k |
+| Variabel | Satu-satunya tempat mengubah angka masukan, dengan pratinjau hasil |
+| Metode & sumber | Alur hitung, turunan angka pengganda k, sumber data, catatan pencocokan |
 
-Semua asumsi tersimpan di alamat (query string), jadi skenario bisa dibagikan lewat tautan.
+Semua angka masukan diatur di menu **Variabel**; halaman lain hanya menampilkan hasil beserta rumusnya. Variabel tersimpan di alamat (query string), jadi skenario bisa dibagikan lewat tautan.
 
 ```bash
 npm install

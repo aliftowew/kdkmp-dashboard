@@ -1,10 +1,9 @@
 "use client";
 
 import { BatangDatar } from "@/components/grafik.tsx";
-import { IsianAngka, PemilihSkenario, TombolBagikan, useParameter } from "@/components/parameter.tsx";
-import { Catatan, Kartu, KepalaHalaman, Panel, Rumus, Statistik, Td, Th } from "@/components/ui.tsx";
+import { RingkasanVariabel, TombolBagikan, useParameter } from "@/components/parameter.tsx";
+import { Catatan, KepalaHalaman, Panel, Rumus, Statistik, Td, Th } from "@/components/ui.tsx";
 import { angka, bulat, persen, rupiahRingkas } from "@/lib/format.ts";
-import { AWAL } from "@/lib/model.ts";
 
 const NEGARA = [
   { negara: "Finlandia", pdb: "11% – 14%", anggota: "~90% (dewasa)", sektor: "Ritel (konsumen) & perbankan" },
@@ -16,7 +15,7 @@ const NEGARA = [
 ];
 
 export function HalamanNasional() {
-  const { p, h, ubah } = useParameter();
+  const { p, h } = useParameter();
   const n = h.nasional;
 
   return (
@@ -28,39 +27,16 @@ export function HalamanNasional() {
         aksi={<TombolBagikan />}
       />
 
-      <Kartu className="mt-8 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-[0.95rem] font-bold tracking-[-0.01em]">Skenario & skala</h2>
-          <PemilihSkenario />
-        </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <IsianAngka
-            label="Jumlah KDKMP nasional"
-            nilai={p.jumlahKdkmp}
-            bawaan={AWAL.jumlahKdkmp}
-            ubah={(v) => ubah({ jumlahKdkmp: v })}
-            langkah={1}
-            sumber="75.753 desa + 8.486 kelurahan + 37 UPT/SPT"
-          />
-          <IsianAngka
-            label="PDB ADHB 2025"
-            nilai={p.pdbTriliun}
-            bawaan={AWAL.pdbTriliun}
-            ubah={(v) => ubah({ pdbTriliun: v })}
-            satuan="triliun"
-            sumber="BRS BPS No. 18/02/Th. XXIX"
-          />
-          <div className="flex flex-col gap-1">
-            <p className="font-mono text-[0.62rem] tracking-[0.1em] text-muted uppercase">Faktor skala</p>
-            <p className="tnum rounded-xl bg-surface-2 px-3 py-2 text-sm font-semibold">
-              × {angka(h.skala, 2)}
-            </p>
-            <p className="text-xs text-muted">
-              {bulat(p.jumlahKdkmp)} KDKMP ÷ {bulat(p.desa)} desa Bantul
-            </p>
-          </div>
-        </div>
-      </Kartu>
+      <RingkasanVariabel
+        butir={[
+          { label: "Pangsa", nilai: `${angka(p.pangsa, 0)}%` },
+          { label: "Diskon", nilai: `${angka(p.diskon, 1)}%` },
+          { label: "Margin", nilai: `${angka(p.margin, 1)}%` },
+          { label: "KDKMP", nilai: bulat(p.jumlahKdkmp) },
+          { label: "Skala", nilai: `× ${angka(h.skala, 1)}` },
+          { label: "PDB", nilai: `Rp ${angka(p.pdbTriliun, 1)} T` },
+        ]}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Statistik ikon="trending_up" nilai={rupiahRingkas(n.dYTotal)} label="Tambahan PDB / tahun" catatan="jaringan desa + substitusi impor" />
@@ -70,7 +46,7 @@ export function HalamanNasional() {
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <Panel judul="⑦ Substitusi impor komoditas" kanan={<span className="text-xs text-muted">Ubah % yang digantikan petani lokal</span>}>
+        <Panel judul="⑦ Substitusi impor komoditas" kanan={<span className="text-xs text-muted">% diatur di menu Variabel</span>}>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
@@ -90,25 +66,8 @@ export function HalamanNasional() {
                   <Td kanan className="whitespace-nowrap">
                     Rp {angka(km.minT, 1)}–{angka(km.maxT, 1)} T
                   </Td>
-                  <Td kanan>
-                    <span className="inline-flex items-center gap-1">
-                      <input
-                        type="number"
-                        min={0}
-                        max={100}
-                        step={5}
-                        value={km.persen}
-                        aria-label={`Persen impor ${km.nama} yang digantikan`}
-                        onChange={(e) => {
-                          const v = Number(e.target.value);
-                          if (Number.isFinite(v)) ubah({ substitusi: { ...p.substitusi, [km.id]: Math.min(100, Math.max(0, v)) } });
-                        }}
-                        className={`tnum w-16 rounded-lg border bg-surface px-2 py-1 text-right text-sm focus-visible:border-accent ${
-                          km.persen !== AWAL.substitusi[km.id] ? "border-accent font-semibold" : "border-line"
-                        }`}
-                      />
-                      <span className="text-xs text-muted">%</span>
-                    </span>
+                  <Td kanan className={km.persen ? "font-semibold text-ink" : "text-muted"}>
+                    {angka(km.persen, 0)}%
                   </Td>
                   <Td kanan className={km.nilai ? "font-semibold text-ink" : "text-muted"}>
                     {rupiahRingkas(km.nilai, 2)}
