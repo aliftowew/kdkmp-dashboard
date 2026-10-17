@@ -45,6 +45,8 @@
   --seri-2: #eb6834;
   --seri-3: #1baf7a;
   --seri-4: #eda100;
+  /* Lempeng di belakang logo resmi — sengaja putih di KEDUA tema (lihat shell.tsx). */
+  --latar-logo: #ffffff;
   --bayang: 0 1px 3px rgb(14 34 51 / 0.07);
   --bayang-naik: 0 8px 24px rgb(14 34 51 / 0.10);
 }
@@ -75,7 +77,6 @@
     --seri-1: #3987e5;
     --seri-2: #d95926;
     --seri-3: #199e70;
-  --seri-4: #c98500;
     --seri-4: #c98500;
     --bayang: 0 1px 3px rgb(0 0 0 / 0.4);
     --bayang-naik: 0 8px 24px rgb(0 0 0 / 0.5);
@@ -138,6 +139,7 @@
   --color-seri-2: var(--seri-2);
   --color-seri-3: var(--seri-3);
   --color-seri-4: var(--seri-4);
+  --color-latar-logo: var(--latar-logo);
 
   --shadow-kartu: var(--bayang);
   --shadow-naik: var(--bayang-naik);

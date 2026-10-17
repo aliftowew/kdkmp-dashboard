@@ -9,23 +9,35 @@ import { TombolTema } from "@/components/tema.tsx";
 import { Ikon } from "@/components/ui.tsx";
 import { GRUP, MENU, menuAktif } from "@/lib/menu.ts";
 
-/** Marka aplikasi: digambar dari token, jadi ikut tema tanpa dua berkas logo. */
-function Marka() {
-  return (
-    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-accent text-[1.2rem] text-on-accent shadow-kartu">
-      <Ikon nama="storefront" />
-    </span>
-  );
-}
-
+/*
+ * Logo resmi Kopdes Merah Putih dipakai apa adanya, tidak digambar ulang.
+ *
+ * Ia selalu duduk di atas lempeng putih (--latar-logo), juga di tema gelap:
+ * separuh putih bendera dan tulisan hitam "MERAH PUTIH" lenyap di atas latar
+ * gelap, dan logo yang warnanya dibalik bukan lagi logo yang sama.
+ */
 function Merek({ ringkas = false }: { ringkas?: boolean }) {
   return (
-    <span className="flex min-w-0 items-center gap-2.5">
-      <Marka />
+    // Di sidebar logo ditumpuk di atas judul: berdampingan, judulnya terpotong
+    // dan tulisan "MERAH PUTIH" di logo terlalu kecil untuk terbaca.
+    <span className={`flex min-w-0 gap-3 ${ringkas ? "items-center" : "flex-col items-start gap-2.5"}`}>
+      {ringkas ? (
+        <img
+          src="/logo/marka.png"
+          alt="Kopdes Merah Putih"
+          width={36}
+          height={36}
+          className="h-9 w-9 shrink-0 rounded-xl border border-line bg-latar-logo object-contain"
+        />
+      ) : (
+        <span className="shrink-0 rounded-2xl border border-line bg-latar-logo px-3 py-2">
+          <img src="/logo/kopdes.png" alt="Kopdes Merah Putih" width={97} height={72} className="h-[4.5rem] w-auto" />
+        </span>
+      )}
       <span className={`flex min-w-0 flex-col ${ringkas ? "max-sm:sr-only" : ""}`}>
         <span className="truncate text-[1.02rem] leading-tight font-extrabold tracking-[-0.02em]">Kalkulator KDKMP</span>
         <span className="truncate font-mono text-[0.6rem] tracking-[0.1em] text-muted uppercase">
-          Koperasi Desa Merah Putih
+          Simulasi dampak
         </span>
       </span>
     </span>
@@ -84,7 +96,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         } lg:visible lg:sticky lg:top-0 lg:z-auto lg:h-dvh lg:w-auto lg:translate-x-0 lg:shadow-none`}
       >
         <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-4 lg:gap-5 lg:p-3">
-          <div className="flex items-center justify-between gap-2 lg:px-1 lg:pt-1">
+          <div className="flex items-start justify-between gap-2 lg:px-1 lg:pt-1">
             <Merek />
             <button
               ref={penutup}
